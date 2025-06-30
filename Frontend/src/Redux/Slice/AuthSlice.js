@@ -1,10 +1,6 @@
-/* eslint-disable no-unused-vars */
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-
 import axios from '../../Utils/axios.js'
-import axiosSecure from '../../Utils/axiosSecure.js'
-import auth from '../../Firebase/firebase.config.js'
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile } from 'firebase/auth'
+
 const initialState = {
   user: null,
   isLoading: false,
@@ -14,161 +10,166 @@ const initialState = {
   isCreateUserLoading: false,
   isCreateUserSuccess: false,
   isCreateUserError: false,
-  isUpdateUserLoading: false,
-  isUpdateUserSuccess: false,
-  isUpdateUserError: false,
-  isGetUserDataLoading: true,
+  isGetUserDataLoading: false,
   isGetUserDataSuccess: false,
   isGetUserDataError: false,
-  isGetUsersLoading: false,
-  isGetUsersSuccess: false,
-  isGetUsersError: false
+  error: null
 }
 
-export const saveUserData = async userData => {
-  const response = await axios.post('user/', userData)
+// Register user via backend
+export const registerUser = createAsyncThunk(
+  'user/registerUser',
+  async (userData, { rejectWithValue }) => {
+    try {
+      const res = await axios.post('/user/create-user', userData)
+      return res.data.data
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message)
+    }
+  }
+)
 
-  const data = response.data.data
-  const tokenExpiration = new Date().getTime() + 3 * 60 * 60 * 1000 // 8 hours from now
-  localStorage.setItem(
-    'userToken',
-    JSON.stringify({
-      access_token: response.data.token,
-      expiration: tokenExpiration
-    })
-  )
-  return data
-}
-
+// Login user via backend
 export const loginUser = createAsyncThunk(
-  'loginUser',
-  async ({ email, password }) => {
-    const res = await signInWithEmailAndPassword(auth, email, password)
-    const data = await saveUserData({
-      name: res?.user?.displayName,
-      email: email
-    })
-    return data
+  'user/loginUser',
+  async ({ email, password }, { rejectWithValue }) => {
+    try {
+      const res = await axios.post('/user/login', { email, password })
+      if (res.data.token) {
+        localStorage.setItem('userToken', res.data.token)
+      }
+      return res.data.data
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message)
+    }
   }
 )
 
-export const createUser = createAsyncThunk(
-  'createUser',
-  async (formdata) => {
-    const email = formdata.get("email")
-    const password = formdata.get("password")
-    const name = formdata.get("name")
-    console.log("signing in with", email, password);
-    const res = await createUserWithEmailAndPassword(auth, email, password)
-    const result = updateProfile(auth.currentUser, {
-      displayName: name
-    })
-    const data = await saveUserData(formdata)
-    return data
+// Fetch user info from backend
+export const fetchUser = createAsyncThunk(
+  'user/fetchUser',
+  async (_, { rejectWithValue }) => {
+    try {
+      // Use token from localStorage if needed
+      const token = localStorage.getItem('userToken')
+      const res = await axios.get('/user', {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      return res.data.data
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message)
+    }
   }
 )
 
-export const fetchUser = createAsyncThunk('fetchUser', async email => {
-  const response = await axios.post(`/user/get-user`, { email: email })
-  return response.data.data
-})
-
-export const logOut = createAsyncThunk('logOut', async () => {
-  const response = await signOut(auth)
-  localStorage.removeItem('userToken')
-  return response
-})
+// Logout (just clears token, backend can blacklist if needed)
+export const logoutUser = createAsyncThunk(
+  'user/logoutUser',
+  async (_, { rejectWithValue }) => {
+    try {
+      localStorage.removeItem('userToken')
+      return true
+    } catch (err) {
+      return rejectWithValue(err.message)
+    }
+  }
+)
 
 const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
-    reset: state => {
+    resetStatus: state => {
       state.isLoginLoading = false
-      state.isLoginError = false
       state.isLoginSuccess = false
+      state.isLoginError = false
       state.isCreateUserLoading = false
       state.isCreateUserError = false
       state.isCreateUserSuccess = false
       state.isGetUserDataLoading = false
       state.isGetUserDataSuccess = false
       state.isGetUserDataError = false
-      state.isGetUsersLoading = false
-      state.isGetUsersSuccess = false
-      state.isGetUsersError = false
-      state.isUpdateUserLoading = false
-      state.isUpdateUserSuccess = false
-      state.isUpdateUserError = false
-    },
-    startLoading: (state, action) => {
-      state.isGetUserDataLoading = false
-      state.isLoading = action.payload
+      state.error = null
     },
     setUser: (state, action) => {
-      state.isLoading = false
       state.user = action.payload
-    },
-    logout: async (state, action) => {
-      signOut(auth).then(() => {
-        state.user = null
-        localStorage.removeItem('userToken')
-      })
+      state.isLoading = false
     }
   },
   extraReducers: builder => {
     builder
+      // Register
+      .addCase(registerUser.pending, state => {
+        state.isCreateUserLoading = true
+        state.isCreateUserSuccess = false
+        state.isCreateUserError = false
+        state.error = null
+      })
+      .addCase(registerUser.fulfilled, (state) => {
+        state.isCreateUserLoading = false
+        state.isCreateUserSuccess = true
+        state.isCreateUserError = false
+        state.error = null
+      })
+      .addCase(registerUser.rejected, (state, action) => {
+        state.isCreateUserLoading = false
+        state.isCreateUserSuccess = false
+        state.isCreateUserError = true
+        state.error = action.payload
+      })
+
+      // Login
       .addCase(loginUser.pending, state => {
         state.isLoginLoading = true
         state.isLoginSuccess = false
         state.isLoginError = false
+        state.error = null
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.user = action.payload
         state.isLoginLoading = false
         state.isLoginSuccess = true
         state.isLoginError = false
+        state.error = null
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoginLoading = false
-        state.isLoginError = true
         state.isLoginSuccess = false
+        state.isLoginError = true
+        state.error = action.payload
       })
-      .addCase(fetchUser.pending, (state, action) => {
+
+      // Fetch User
+      .addCase(fetchUser.pending, state => {
         state.isGetUserDataLoading = true
         state.isGetUserDataSuccess = false
         state.isGetUserDataError = false
+        state.error = null
       })
       .addCase(fetchUser.fulfilled, (state, action) => {
         state.user = action.payload
-        state.isLoading = false
         state.isGetUserDataLoading = false
         state.isGetUserDataSuccess = true
         state.isGetUserDataError = false
+        state.error = null
       })
       .addCase(fetchUser.rejected, (state, action) => {
         state.isGetUserDataLoading = false
         state.isGetUserDataSuccess = false
         state.isGetUserDataError = true
+        state.error = action.payload
       })
-      .addCase(createUser.pending, (state, action) => {
-        state.isCreateUserLoading = true
-        state.isCreateUserError = false
-        state.isCreateUserSuccess = false
+
+      // Logout
+      .addCase(logoutUser.fulfilled, state => {
+        state.user = null
+        state.error = null
       })
-      .addCase(createUser.fulfilled, (state, action) => {
-        state.isCreateUserError = false
-        state.isCreateUserSuccess = true
-        state.isCreateUserLoading = false
-        state.user = action.payload
+      .addCase(logoutUser.rejected, (state, action) => {
+        state.error = action.payload
       })
-      .addCase(createUser.rejected, (state, action) => {
-        state.isCreateUserLoading = false
-        state.isCreateUserError = true
-        state.isCreateUserSuccess = false
-      })
-      .addCase(logOut.rejected, (state, action) => {})
   }
 })
 
-export const { reset, setUser, logout, startLoading } = userSlice.actions
+export const { resetStatus, setUser } = userSlice.actions
 export default userSlice.reducer
