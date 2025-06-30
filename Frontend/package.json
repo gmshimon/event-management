@@ -10,13 +10,20 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@firebase/auth": "^1.10.7",
+    "@reduxjs/toolkit": "^2.8.2",
     "@tailwindcss/postcss": "^4.0.0-alpha.13",
     "@tailwindcss/vite": "^4.1.11",
     "autoprefixer": "^10.4.21",
+    "axios": "^1.10.0",
+    "firebase": "^11.9.1",
+    "lucide-react": "^0.525.0",
     "postcss": "^8.5.6",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-router-dom": "^7.6.3"
+    "react-redux": "^9.2.0",
+    "react-router-dom": "^7.6.3",
+    "react-toastify": "^11.0.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.29.0",

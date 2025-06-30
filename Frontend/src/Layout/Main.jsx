@@ -1,10 +1,16 @@
 import React from 'react';
-
+import Navbar from '../Component/Navbar/Navbar';
+import { Outlet, useLocation } from 'react-router';
 const Main = () => {
+    const location = useLocation()
+     const isLoginPage =
+    location.pathname.includes('login') ||
+    location.pathname.includes('register')
     return (
-        <div>
-            <h1>Hello</h1>
-        </div>
+        <>
+          {isLoginPage || <Navbar />}
+            <Outlet/>
+        </>
     );
 };
 
