@@ -16,17 +16,14 @@ const eventSchema = new Schema(
       required: true
     },
 
-    organizerName: {
-      type: String,
-      trim: true,
-      required: true
-    },
-
-    dateTime: {
+    date: {
       type: Date,
       required: true
     },
-
+    time: {
+      type: String,
+      required: true
+    },
     location: {
       type: String,
       trim: true,
@@ -63,11 +60,9 @@ const eventSchema = new Schema(
   { timestamps: true }
 )
 
-/* ------------------------------- indexes ------------------------------ */
-eventSchema.index({ dateTime: 1, title: 1 })
+eventSchema.index({ date: 1, time: 1, })
 eventSchema.index({ title: 'text', description: 'text' })
 
-/* --------------------------- instance method -------------------------- */
 eventSchema.methods.addAttendee = async function (userId) {
   if (this.attendees.includes(userId))
     throw new Error('User already joined this event')
@@ -77,5 +72,4 @@ eventSchema.methods.addAttendee = async function (userId) {
   return this.save()
 }
 
-/* ------------------------------- export ------------------------------- */
 export default model('Event', eventSchema)

@@ -5,6 +5,7 @@ import Homepage from "../Page/Homepage/Homepage";
 import RegistrationPage from "../Page/RegistrationPage/RegistrationPage";
 import AddEventPage from "../Page/AddEventPage/AddEventPage";
 import MyEvent from "../Page/MyEvent/MyEvent";
+import Events from "../Page/Events/Events";
 export const router = createBrowserRouter([
 {
     path:'',
@@ -29,6 +30,10 @@ export const router = createBrowserRouter([
         {
             path:'/my-events',
             element:<MyEvent/>
+        },
+        {
+            path:"/events",
+            element:<Events/>
         }
     ]
 }

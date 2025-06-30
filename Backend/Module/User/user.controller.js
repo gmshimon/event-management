@@ -2,7 +2,7 @@ import generateToken from '../../Utils/generateToken.js'
 import User from './user.model.js'
 import bcrypt from 'bcrypt'
 
-const registerUser = async (req, res, next) => {
+export const registerUser = async (req, res, next) => {
   try {
     const userData = req.body
 
@@ -18,7 +18,7 @@ const registerUser = async (req, res, next) => {
   }
 }
 
-const loginUser = async (req, res, next) => {
+export const loginUser = async (req, res, next) => {
   try {
     const { email, pass } = req.body
     if (!email || !pass) {
@@ -45,4 +45,4 @@ const loginUser = async (req, res, next) => {
   }
 }
 
-export default { registerUser, loginUser }
+
