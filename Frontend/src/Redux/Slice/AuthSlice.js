@@ -32,14 +32,22 @@ export const registerUser = createAsyncThunk(
 // Login user via backend
 export const loginUser = createAsyncThunk(
   'user/loginUser',
-  async ({ email, password }, { rejectWithValue }) => {
+  async ({ email, pass }, { rejectWithValue }) => {
     try {
-      const res = await axios.post('/user/login', { email, password })
-      if (res.data.token) {
-        localStorage.setItem('userToken', res.data.token)
+      const res = await axios.post('/user/login', { email, pass })
+      if (res.data.data) {
+        const tokenExpiration = new Date().getTime() + 5 * 60 * 60 * 1000;
+        localStorage.setItem(
+          'userToken',
+          JSON.stringify({
+            accessToken: res.data.accessToken,
+            tokenExpiration: tokenExpiration,
+          })
+        ); 
       }
       return res.data.data
     } catch (err) {
+      console.log(err)
       return rejectWithValue(err.response?.data?.message || err.message)
     }
   }

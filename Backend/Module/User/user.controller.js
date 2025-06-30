@@ -21,16 +21,17 @@ export const registerUser = async (req, res, next) => {
 export const loginUser = async (req, res, next) => {
   try {
     const { email, pass } = req.body
+
     if (!email || !pass) {
-      return next(makeError('Please provide credentials', 400))
+      return next('Please provide credentials', 400)
     }
-    const user = await User.findOne({ email })
+    const user = await User.findOne({ email }).select('+password')
     if (!user) {
-      return next(makeError('No user with this email', 404))
+      return next('No user with this email', 404)
     }
     const isPasswordValid = bcrypt.compareSync(pass, user.password)
     if (!isPasswordValid) {
-      return next(makeError('Wrong credentials', 401))
+      return next('Wrong credentials', 401)
     }
     const { accessToken } = generateToken(user)
     const { password, ...others } = user.toObject()
@@ -41,7 +42,7 @@ export const loginUser = async (req, res, next) => {
       accessToken: accessToken
     })
   } catch (error) {
-    next(err)
+    next(error)
   }
 }
 
