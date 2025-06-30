@@ -13,7 +13,7 @@ const router = express.Router()
 
 router.delete('/delete-event/:id', deleteEvent)
 router.put('/update-event/:id', updateEvent)
-router.post('/attend/:eventId/', addAttendee)
+router.post('/attend/:eventId/',verifyToken, addAttendee)
 router.post('/create-event', verifyToken, createEvents)
 router.get('/my-event', verifyToken, getMyEvent)
 router.get('/', getEvent)

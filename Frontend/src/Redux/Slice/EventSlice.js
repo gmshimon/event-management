@@ -99,7 +99,6 @@ export const addAttendee = createAsyncThunk(
   async ({ eventId }, { rejectWithValue }) => {
     try {
       const res = await axiosSecure.post(`/events/attend/${eventId}`)
-      return res.data.data
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || err.message)
     }
@@ -244,14 +243,10 @@ const eventSlice = createSlice({
         state.isAttendEventError = false
         state.error = null
       })
-      .addCase(addAttendee.fulfilled, (state, action) => {
+      .addCase(addAttendee.fulfilled, (state) => {
         state.isAttendEventLoading = false
         state.isAttendEventSuccess = true
         state.isAttendEventError = false
-        // Update the event with new attendee info
-        state.events = state.events.map(event =>
-          event._id === action.payload._id ? action.payload : event
-        )
         state.error = null
       })
       .addCase(addAttendee.rejected, (state, action) => {

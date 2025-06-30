@@ -93,7 +93,7 @@ export const addAttendee = async (req, res) => {
   try {
     const { eventId } = req.params
     const { id } = req.user
-
+console.log(req.user)
     if (!id) {
       return res.status(400).json({ message: 'User ID is required' })
     }

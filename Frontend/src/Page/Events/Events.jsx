@@ -1,24 +1,47 @@
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import EventCard from '../../Component/EventCard/EventCard';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchEvents, resetEventState } from '../../Redux/Slice/EventSlice';
-import { showToastMessage } from '../../Utils/toastMessage';
-
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import EventCard from "../../Component/EventCard/EventCard";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  addAttendee,
+  fetchEvents,
+  resetEventState,
+} from "../../Redux/Slice/EventSlice";
+import { showToastMessage } from "../../Utils/toastMessage";
 
 const Events = () => {
   const dispatch = useDispatch();
-  const { events, isGetEventLoading, isGetEventError, error } = useSelector(state => state.event);
+  const {
+    events,
+    isGetEventLoading,
+    isGetEventError,
+    isAttendEventLoading,
+    isAttendEventSuccess,
+    isAttendEventError,
+    error,
+  } = useSelector((state) => state.event);
 
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedFilter, setSelectedFilter] = useState('all');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedFilter, setSelectedFilter] = useState("all");
 
-  useEffect(()=>{
-    if(!isGetEventError){
-      showToastMessage(error,"error")
-      dispatch(resetEventState())
+  useEffect(() => {
+    if (isGetEventError) {
+      showToastMessage(error, "error");
     }
-  },[dispatch, error, isGetEventError])
+    if (isAttendEventSuccess) {
+      showToastMessage("You Successfully joined the event", "success");
+    }
+    if (isAttendEventError) {
+      showToastMessage(error, "error");
+    }
+    dispatch(resetEventState());
+  }, [
+    dispatch,
+    error,
+    isAttendEventError,
+    isAttendEventSuccess,
+    isGetEventError,
+  ]);
 
   // Debounce search for better UX
   useEffect(() => {
@@ -26,18 +49,26 @@ const Events = () => {
       const params = {};
       if (searchTerm) params.search = searchTerm;
       // API expects 'date' for today, 'range' for week/month, etc.
-      if (selectedFilter === 'today') params.date = 'today';
-      else if (['currentWeek', 'lastWeek', 'currentMonth', 'lastMonth'].includes(selectedFilter)) {
+      if (selectedFilter === "today") params.date = "today";
+      else if (
+        ["currentWeek", "lastWeek", "currentMonth", "lastMonth"].includes(
+          selectedFilter
+        )
+      ) {
         params.range = selectedFilter;
       }
       dispatch(fetchEvents(params));
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [searchTerm, selectedFilter, dispatch]);
+  }, [searchTerm, selectedFilter, dispatch,isAttendEventSuccess]);
+
+  const handelJoinEvent = (event) => {
+    dispatch(addAttendee({ eventId: event._id || event.id }));
+  };
 
   // Loading State
-  if (isGetEventLoading) {
+  if (isGetEventLoading || isAttendEventLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
         <div className="text-center">
@@ -58,7 +89,8 @@ const Events = () => {
               Discover Amazing Events
             </h1>
             <p className="text-xl opacity-90 max-w-3xl mx-auto">
-              Explore a world of exciting events happening around you. From tech conferences to music festivals, find your next adventure.
+              Explore a world of exciting events happening around you. From tech
+              conferences to music festivals, find your next adventure.
             </p>
           </div>
         </div>
@@ -71,8 +103,18 @@ const Events = () => {
             {/* Search Bar */}
             <div className="flex-1">
               <div className="relative">
-                <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                <svg
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
                 </svg>
                 <input
                   type="text"
@@ -104,14 +146,14 @@ const Events = () => {
           {/* Results Summary */}
           <div className="mt-4 flex items-center justify-between text-sm text-gray-600">
             <span>
-              Showing {events.length} event{events.length !== 1 && 's'}
+              Showing {events.length} event{events.length !== 1 && "s"}
               {searchTerm && ` for "${searchTerm}"`}
             </span>
-            {selectedFilter !== 'all' && (
+            {selectedFilter !== "all" && (
               <button
                 onClick={() => {
-                  setSelectedFilter('all');
-                  setSearchTerm('');
+                  setSelectedFilter("all");
+                  setSearchTerm("");
                 }}
                 className="text-blue-600 hover:text-blue-800 font-medium"
               >
@@ -124,35 +166,58 @@ const Events = () => {
         {/* Events Grid */}
         {events.length === 0 ? (
           <div className="text-center py-16">
-            <svg className="mx-auto h-24 w-24 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 4v10m6-10v10m-6-4h6" />
+            <svg
+              className="mx-auto h-24 w-24 text-gray-400 mb-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1}
+                d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 4v10m6-10v10m-6-4h6"
+              />
             </svg>
-            <h3 className="text-2xl font-bold text-gray-800 mb-2">No Events Found</h3>
+            <h3 className="text-2xl font-bold text-gray-800 mb-2">
+              No Events Found
+            </h3>
             <p className="text-gray-600 mb-6">
-              {searchTerm || selectedFilter !== 'all'
-                ? 'Try adjusting your search or filter criteria.'
-                : 'No events are currently available.'}
+              {searchTerm || selectedFilter !== "all"
+                ? "Try adjusting your search or filter criteria."
+                : "No events are currently available."}
             </p>
             <Link
               to="/add-event"
               className="inline-flex items-center bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-300"
             >
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              <svg
+                className="w-5 h-5 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 4v16m8-8H4"
+                />
               </svg>
               Create Event
             </Link>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-             {events.map((event) => (
-               <EventCard
-                 key={event._id || event.id}
-                 event={event}
-                 // Add your join event handler here, or use as needed
-               />
-             ))}
-           </div>
+            {events.map((event) => (
+              <EventCard
+                key={event._id || event.id}
+                event={event}
+                onJoinEvent={handelJoinEvent}
+                // Add your join event handler here, or use as needed
+              />
+            ))}
+          </div>
         )}
       </div>
     </div>
