@@ -17,11 +17,10 @@ axiosSecure.interceptors.request.use(
   (config) => {
     // Retrieve the token from storage (e.g., localStorage or a variable)
     const token = localStorage.getItem('userToken');
-    const { access_token } = JSON.parse(token);
-
-    if (access_token) {
+    const { accessToken } = JSON.parse(token);
+    if (accessToken) {
       // If a token exists, set it in the Authorization header
-      config.headers.Authorization = `Bearer ${access_token}`;
+      config.headers.Authorization = `Bearer ${accessToken}`;
     }
 
     // Set Content-Type header for multipart form data

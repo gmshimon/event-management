@@ -2,11 +2,11 @@ import eventModel from './event.model.js'
 
 export const createEvents = async (req, res, next) => {
   try {
-    const { title, organizer, date, time, location, description } = req.body
+    const { title, organizer, date, time, location, description,image } = req.body
     const { _id } = req.user
     const createdBy = _id
     // Input validation (basic)
-    if (!title || !organizer || !date || !time || !location || !description) {
+    if (!title || !organizer || !date || !time || !location || !description||!image) {
       return res.status(400).json({ message: 'All fields are required.' })
     }
 
@@ -18,7 +18,8 @@ export const createEvents = async (req, res, next) => {
       time,
       location,
       description,
-      createdBy
+      createdBy,
+      image
     })
 
     // Save to DB

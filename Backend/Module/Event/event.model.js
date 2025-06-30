@@ -11,8 +11,7 @@ const eventSchema = new Schema(
     },
 
     organizer: {
-      type: Schema.Types.ObjectId,
-      ref: 'User',
+      type: String,
       required: true
     },
 
@@ -37,12 +36,19 @@ const eventSchema = new Schema(
       required: true,
       maxlength: 2000
     },
-
+    image: {
+      type: String,
+      required: true
+    },
+    category: {
+      type: String,
+      default: 'Fitness'
+    },
     attendees: [
       {
         type: Schema.Types.ObjectId,
         ref: 'User',
-        unique: true
+
       }
     ],
 
@@ -54,13 +60,12 @@ const eventSchema = new Schema(
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: 'User',
-      unique: true
     }
   },
   { timestamps: true }
 )
 
-eventSchema.index({ date: 1, time: 1, })
+eventSchema.index({ date: 1, time: 1 })
 eventSchema.index({ title: 'text', description: 'text' })
 
 eventSchema.methods.addAttendee = async function (userId) {
@@ -71,5 +76,22 @@ eventSchema.methods.addAttendee = async function (userId) {
   this.attendeeCount = this.attendees.length
   return this.save()
 }
+
+eventSchema.pre('validate', function (next) {
+  if (!this.category) {
+    // Choose random category if not provided
+    const categories = [
+      'Fitness',
+      'Education',
+      'Literature',
+      'Business',
+      'Food',
+      'Music',
+      'Technology'
+    ]
+    this.category = categories[Math.floor(Math.random() * categories.length)]
+  }
+  next()
+})
 
 export default model('Event', eventSchema)
