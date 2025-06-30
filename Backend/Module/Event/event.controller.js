@@ -1,3 +1,4 @@
+import buildEventFilter from '../../Utils/builtFilter.js'
 import eventModel from './event.model.js'
 
 export const createEvents = async (req, res, next) => {
@@ -148,5 +149,25 @@ export const getMyEvent = async (req, res, next) => {
     })
   } catch (error) {
     next(error)
+  }
+}
+
+export const getEvent = async (req, res, next) => {
+  try {
+
+    const { search, date, range } = req.query;
+
+    // Use the helper
+    const filter = buildEventFilter({ search, date, range });
+
+    // Find events
+    const events = await eventModel.find(filter).sort({ date: 1, time: 1 });
+
+    res.status(200).json({
+      success: true,
+      data: events
+    });
+  } catch (error) {
+    next(error);
   }
 }

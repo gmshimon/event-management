@@ -41,10 +41,10 @@ const initialState = {
 // --- Fetch Events ---
 export const fetchEvents = createAsyncThunk(
   'event/fetchEvents',
-  async (_, { rejectWithValue }) => {
+  async (params = {}, { rejectWithValue }) => {
     try {
-      const res = await axiosSecure.get('/events')
-      return res.data.data
+      const res = await axiosSecure.get('/events', { params });
+      return res.data.data;
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || err.message)
     }
