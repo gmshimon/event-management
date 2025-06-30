@@ -2,11 +2,20 @@ import eventModel from './event.model.js'
 
 export const createEvents = async (req, res, next) => {
   try {
-    const { title, organizer, date, time, location, description,image } = req.body
-    const { _id } = req.user
-    const createdBy = _id
+    const { title, organizer, date, time, location, description, image } =
+      req.body
+    const { id } = req.user
+    const createdBy = id
     // Input validation (basic)
-    if (!title || !organizer || !date || !time || !location || !description||!image) {
+    if (
+      !title ||
+      !organizer ||
+      !date ||
+      !time ||
+      !location ||
+      !description ||
+      !image
+    ) {
       return res.status(400).json({ message: 'All fields are required.' })
     }
 
@@ -34,7 +43,6 @@ export const createEvents = async (req, res, next) => {
     return res.status(500).json({ message: 'Internal server error' })
   }
 }
-
 
 export const updateEvent = async (req, res) => {
   try {
@@ -83,9 +91,9 @@ export const deleteEvent = async (req, res) => {
 export const addAttendee = async (req, res) => {
   try {
     const { eventId } = req.params
-    const { _id } = req.user
+    const { id } = req.user
 
-    if (!_id) {
+    if (!id) {
       return res.status(400).json({ message: 'User ID is required' })
     }
 
@@ -96,12 +104,12 @@ export const addAttendee = async (req, res) => {
     }
 
     // Check if user is already an attendee
-    if (event.attendees.includes(_id)) {
+    if (event.attendees.includes(id)) {
       return res.status(400).json({ message: 'User already joined this event' })
     }
 
     // Add user and update attendee count
-    event.attendees.push(_id)
+    event.attendees.push(id)
     event.attendeeCount = event.attendees.length
 
     await event.save()
@@ -110,9 +118,35 @@ export const addAttendee = async (req, res) => {
       message: 'User successfully added to the event',
       event
     })
-
   } catch (error) {
     console.error('Error adding attendee:', error)
     return res.status(500).json({ message: 'Internal server error' })
+  }
+}
+
+export const getMyEvent = async (req, res, next) => {
+  try {
+    const { id } = req.user
+    // 1. Find all events created by this user
+    const events = await eventModel.find({ createdBy: id })
+    // 2. Calculate totals
+    const totalEvents = events.length
+    const totalAttendees = events.reduce(
+      (sum, event) => sum + (event.attendeeCount || 0),
+      0
+    )
+    const avgAttendees = totalEvents > 0 ? totalAttendees / totalEvents : 0
+    // 3. Send response
+    res.status(200).json({
+      success: true,
+      data: {
+        events,
+        totalEvents,
+        totalAttendees,
+        avgAttendees
+      }
+    })
+  } catch (error) {
+    next(error)
   }
 }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import EventCard from '../../Component/EventCard/EventCard';
+import { useDispatch } from 'react-redux';
 
 const Events = () => {
   const [events, setEvents] = useState([]);
@@ -8,7 +9,7 @@ const Events = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [isLoading, setIsLoading] = useState(true);
-
+const dispatch = useDispatch()
   // Mock events data - in a real app, this would come from an API
   const mockEvents = [
     {

@@ -3,6 +3,18 @@ import axiosSecure from '../../Utils/axiosSecure.js'
 
 const initialState = {
   events: [],
+
+  myEvents: [],
+  myEventStats: {
+    totalEvents: 0,
+    totalAttendees: 0,
+    avgAttendees: 0
+  },
+
+  isGetMyEventLoading: false,
+  isGetMyEventSuccess: false,
+  isGetMyEventError: false,
+
   isGetEventLoading: false,
   isGetEventSuccess: false,
   isGetEventError: false,
@@ -94,6 +106,19 @@ export const addAttendee = createAsyncThunk(
   }
 )
 
+export const fetchMyEvents = createAsyncThunk(
+  'event/fetchMyEvents',
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await axiosSecure.get('/events/my-event')
+      // The backend response: { data: { events, totalEvents, totalAttendees, avgAttendees } }
+      return res.data.data
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message)
+    }
+  }
+)
+
 const eventSlice = createSlice({
   name: 'event',
   initialState,
@@ -118,6 +143,10 @@ const eventSlice = createSlice({
       state.isAttendEventLoading = false
       state.isAttendEventSuccess = false
       state.isAttendEventError = false
+
+      state.isGetMyEventLoading = false
+      state.isGetMyEventSuccess = false
+      state.isGetMyEventError = false
 
       state.error = null
     }
@@ -145,8 +174,6 @@ const eventSlice = createSlice({
         state.error = action.payload
       })
 
-    // Create Event
-    builder
       .addCase(createEvent.pending, state => {
         state.isCreateEventLoading = true
         state.isCreateEventSuccess = false
@@ -167,8 +194,6 @@ const eventSlice = createSlice({
         state.error = action.payload
       })
 
-    // Update Event
-    builder
       .addCase(updateEvent.pending, state => {
         state.isUpdateEventLoading = true
         state.isUpdateEventSuccess = false
@@ -191,9 +216,6 @@ const eventSlice = createSlice({
         state.isUpdateEventError = true
         state.error = action.payload
       })
-
-    // Delete Event
-    builder
       .addCase(deleteEvent.pending, state => {
         state.isDeleteEventLoading = true
         state.isDeleteEventSuccess = false
@@ -216,9 +238,6 @@ const eventSlice = createSlice({
         state.isDeleteEventError = true
         state.error = action.payload
       })
-
-    // Add Attendee
-    builder
       .addCase(addAttendee.pending, state => {
         state.isAttendEventLoading = true
         state.isAttendEventSuccess = false
@@ -239,6 +258,30 @@ const eventSlice = createSlice({
         state.isAttendEventLoading = false
         state.isAttendEventSuccess = false
         state.isAttendEventError = true
+        state.error = action.payload
+      })
+      .addCase(fetchMyEvents.pending, state => {
+        state.isGetMyEventLoading = true
+        state.isGetMyEventSuccess = false
+        state.isGetMyEventError = false
+        state.error = null
+      })
+      .addCase(fetchMyEvents.fulfilled, (state, action) => {
+        state.isGetMyEventLoading = false
+        state.isGetMyEventSuccess = true
+        state.isGetMyEventError = false
+        state.myEvents = action.payload.events
+        state.myEventStats = {
+          totalEvents: action.payload.totalEvents,
+          totalAttendees: action.payload.totalAttendees,
+          avgAttendees: action.payload.avgAttendees
+        }
+        state.error = null
+      })
+      .addCase(fetchMyEvents.rejected, (state, action) => {
+        state.isGetMyEventLoading = false
+        state.isGetMyEventSuccess = false
+        state.isGetMyEventError = true
         state.error = action.payload
       })
   }
