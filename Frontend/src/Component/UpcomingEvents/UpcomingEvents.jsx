@@ -1,78 +1,21 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
+import { fetchEvents } from '../../Redux/Slice/EventSlice';
 
-const UpcomingEvents = ({ events = [] }) => {
+const UpcomingEvents = () => {
+  const {
+    events,
+    isGetEventLoading,
+  } = useSelector((state) => state.event);
   // Mock data for demonstration if no events provided
-  const mockEvents = [
-    {
-      id: 1,
-      title: "Tech Conference 2024",
-      date: "2024-02-15",
-      time: "09:00 AM",
-      location: "San Francisco, CA",
-      image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400",
-      attendees: 150,
-      category: "Technology",
-      price: "Free"
-    },
-    {
-      id: 2,
-      title: "Music Festival Summer",
-      date: "2024-03-20",
-      time: "06:00 PM",
-      location: "Los Angeles, CA",
-      image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400",
-      attendees: 500,
-      category: "Music",
-      price: "$25"
-    },
-    {
-      id: 3,
-      title: "Food & Wine Tasting",
-      date: "2024-02-28",
-      time: "07:00 PM",
-      location: "New York, NY",
-      image: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400",
-      attendees: 80,
-      category: "Food",
-      price: "$45"
-    },
-    {
-      id: 4,
-      title: "Startup Networking",
-      date: "2024-03-05",
-      time: "06:30 PM",
-      location: "Austin, TX",
-      image: "https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=400",
-      attendees: 120,
-      category: "Business",
-      price: "Free"
-    },
-    {
-      id: 5,
-      title: "Art Gallery Opening",
-      date: "2024-03-12",
-      time: "05:00 PM",
-      location: "Chicago, IL",
-      image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400",
-      attendees: 200,
-      category: "Art",
-      price: "$15"
-    },
-    {
-      id: 6,
-      title: "Fitness Bootcamp",
-      date: "2024-02-25",
-      time: "07:00 AM",
-      location: "Miami, FL",
-      image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400",
-      attendees: 30,
-      category: "Fitness",
-      price: "$20"
-    }
-  ];
+  const dispatch = useDispatch()
+  useEffect(() => {
 
-  const displayEvents = events.length > 0 ? events.slice(0, 6) : mockEvents;
+    dispatch(fetchEvents({}));
+  }, [dispatch]);
+
+  const displayEvents = events.length > 0 ? events.slice(0, 6) : events;
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -95,6 +38,17 @@ const UpcomingEvents = ({ events = [] }) => {
     return colors[category] || 'bg-gray-100 text-gray-800';
   };
 
+  if (isGetEventLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 text-lg">Loading events...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <section className="py-16 bg-gray-50">
       <div className="container mx-auto px-4">
@@ -112,7 +66,7 @@ const UpcomingEvents = ({ events = [] }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
           {displayEvents.map((event) => (
             <div 
-              key={event.id} 
+              key={event._id} 
               className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden group"
             >
               {/* Event Image */}

@@ -39,7 +39,7 @@ const HeroBanner = () => {
             </Link>
             
             <Link 
-              to="/events/add" 
+              to="/add-event" 
               className="btn btn-lg btn-outline border-white text-white hover:bg-white hover:text-gray-800 transform hover:scale-105 transition-all duration-300 px-8"
             >
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

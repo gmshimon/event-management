@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-const CallToActionStrip = ({ isAuthenticated = false }) => {
+const CallToActionStrip = ({ isAuthenticated = true }) => {
   return (
     <section className="py-16 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 relative overflow-hidden">
       {/* Background Animation */}
@@ -69,7 +69,7 @@ const CallToActionStrip = ({ isAuthenticated = false }) => {
             {isAuthenticated ? (
               <>
                 <Link 
-                  to="/events/add" 
+                  to="/add-event" 
                   className="btn btn-lg bg-white text-purple-600 hover:bg-gray-100 border-none transform hover:scale-105 transition-all duration-300 shadow-2xl px-8 font-semibold"
                 >
                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -101,7 +101,7 @@ const CallToActionStrip = ({ isAuthenticated = false }) => {
                 </Link>
                 
                 <Link 
-                  to="/events/add" 
+                  to="/add-event" 
                   className="btn btn-lg btn-outline border-white text-white hover:bg-white hover:text-purple-600 transform hover:scale-105 transition-all duration-300 px-8 font-semibold"
                 >
                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

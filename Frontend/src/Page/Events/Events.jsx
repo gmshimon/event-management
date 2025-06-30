@@ -10,7 +10,6 @@ import {
 import { showToastMessage } from "../../Utils/toastMessage";
 
 const Events = () => {
-  const dispatch = useDispatch();
   const {
     events,
     isGetEventLoading,
@@ -23,6 +22,7 @@ const Events = () => {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("all");
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (isGetEventError) {
@@ -42,7 +42,9 @@ const Events = () => {
     isAttendEventSuccess,
     isGetEventError,
   ]);
-
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
   // Debounce search for better UX
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -61,7 +63,7 @@ const Events = () => {
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [searchTerm, selectedFilter, dispatch,isAttendEventSuccess]);
+  }, [searchTerm, selectedFilter, dispatch, isAttendEventSuccess]);
 
   const handelJoinEvent = (event) => {
     dispatch(addAttendee({ eventId: event._id || event.id }));

@@ -98,6 +98,7 @@ export const addAttendee = createAsyncThunk(
   'event/addAttendee',
   async ({ eventId }, { rejectWithValue }) => {
     try {
+      // eslint-disable-next-line no-unused-vars
       const res = await axiosSecure.post(`/events/attend/${eventId}`)
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || err.message)

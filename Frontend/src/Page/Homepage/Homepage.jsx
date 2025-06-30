@@ -7,10 +7,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { resetStatus } from "../../Redux/Slice/AuthSlice";
 import { showToastMessage } from "../../Utils/toastMessage";
 
-const Homepage = ({ isAuthenticated = false, events = [] }) => {
-  const { error, isLoginSuccess } = useSelector(
-    (state) => state.user
-  );
+const Homepage = () => {
+  const { error, isLoginSuccess } = useSelector((state) => state.user);
   const dispatch = useDispatch();
   useEffect(() => {
     if (isLoginSuccess) {
@@ -24,13 +22,13 @@ const Homepage = ({ isAuthenticated = false, events = [] }) => {
       <HeroBanner />
 
       {/* Upcoming Events Section */}
-      <UpcomingEvents events={events} />
+      <UpcomingEvents />
 
       {/* How It Works Section */}
       <HowItWorks />
 
       {/* Call to Action Section */}
-      <CallToActionStrip isAuthenticated={isAuthenticated} />
+      <CallToActionStrip />
     </div>
   );
 };

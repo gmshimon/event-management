@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import  { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { showToastMessage } from "../../Utils/toastMessage";
 import { createEvent, resetEventState } from "../../Redux/Slice/EventSlice";
@@ -17,19 +16,22 @@ const AddEventPage = () => {
     time: "",
     location: "",
     description: "",
-    image:"",
+    image: "",
     attendeeCount: 0,
   });
 
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
   const dispatch = useDispatch();
-  const navigate = useNavigate();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
 
   useEffect(() => {
     if (isCreateEventSuccess) {
-      handleReset()
-      showToastMessage("Event Created Successfully","success");
+      handleReset();
+      showToastMessage("Event Created Successfully", "success");
     }
     if (isCreateEventError) {
       showToastMessage(error, "error");
@@ -123,7 +125,7 @@ const AddEventPage = () => {
       location: "",
       description: "",
       attendeeCount: 0,
-      image:''
+      image: "",
     });
     setErrors({});
     setTouched({});
@@ -250,7 +252,6 @@ const AddEventPage = () => {
                   value={formData.image}
                   onChange={handleInputChange}
                   onBlur={handleBlur}
-
                   className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none transition-all duration-300 ${
                     errors.image && touched.image
                       ? "border-red-300 focus:border-red-500 bg-red-50"
