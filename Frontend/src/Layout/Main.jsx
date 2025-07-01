@@ -28,7 +28,6 @@ const Main = () => {
       }
     }
   };
-console.log(user)
   useEffect(() => {
     // Call checkTokenExpiration every sec (1 * 1000 milliseconds)
     const tokenExpirationInterval = setInterval(checkTokenExpiration, 1 * 1000);
