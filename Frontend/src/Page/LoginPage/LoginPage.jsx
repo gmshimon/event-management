@@ -33,7 +33,7 @@ export default function LoginPage() {
       [name]: value,
     });
   };
-  console.log(formData);
+  
 
   const handleSubmit = (e) => {
     e.preventDefault();

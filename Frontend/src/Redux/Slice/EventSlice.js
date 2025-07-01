@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axiosSecure from '../../Utils/axiosSecure.js'
+import axios from '../../Utils/axios.js'
 
 const initialState = {
   events: [],
@@ -43,7 +44,7 @@ export const fetchEvents = createAsyncThunk(
   'event/fetchEvents',
   async (params = {}, { rejectWithValue }) => {
     try {
-      const res = await axiosSecure.get('/events', { params });
+      const res = await axios.get('/events', { params });
       return res.data.data;
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || err.message)

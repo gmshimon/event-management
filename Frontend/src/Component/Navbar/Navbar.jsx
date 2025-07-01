@@ -1,7 +1,12 @@
 import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
+import { logoutUser } from '../../Redux/Slice/AuthSlice';
 
-const Navbar = ({ isAuthenticated = false, user = {}, onLogout = () => {} }) => {
+const Navbar = () => {
+  const{user} = useSelector(state=>state.user)
+  console.log(user)
+  const dispatch = useDispatch()
   const menuItems = (
     <>
       <li>
@@ -14,10 +19,10 @@ const Navbar = ({ isAuthenticated = false, user = {}, onLogout = () => {} }) => 
           Events
         </Link>
       </li>
-      {isAuthenticated && (
+      {user?.email && (
         <>
           <li>
-            <Link to='/events/add' className='hover:bg-neutral-focus hover:text-white transition-colors duration-200 rounded-btn'>
+            <Link to='/add-event' className='hover:bg-neutral-focus hover:text-white transition-colors duration-200 rounded-btn'>
               Add Event
             </Link>
           </li>
@@ -54,10 +59,10 @@ const Navbar = ({ isAuthenticated = false, user = {}, onLogout = () => {} }) => 
 
       {/* auth area */}
       <div className='flex items-center gap-2'>
-        {isAuthenticated ? (
+        {user?.email ? (
           <div className='dropdown dropdown-end'>
             <div tabIndex={0} role='button' className='btn btn-ghost btn-circle avatar hover:bg-neutral-focus'>
-              <div className='w-10 rounded-full ring-2 ring-primary ring-offset-base-100 ring-offset-2'>
+              <div className='w-7 rounded-full ring-2 ring-primary ring-offset-base-100 ring-offset-2'>
                 <img
                   src={user.photoURL || 'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'}
                   alt='User avatar'
@@ -79,7 +84,7 @@ const Navbar = ({ isAuthenticated = false, user = {}, onLogout = () => {} }) => 
               </li>
               <li>
                 <button 
-                  onClick={onLogout} 
+                  onClick={()=>dispatch(logoutUser())} 
                   className='text-error hover:bg-error hover:text-white transition-colors duration-200'
                 >
                   Logout
@@ -120,7 +125,7 @@ const Navbar = ({ isAuthenticated = false, user = {}, onLogout = () => {} }) => 
           >
             {menuItems}
             {/* auth-specific action in mobile menu */}
-            {!isAuthenticated ? (
+            {!user?.email ? (
               <li>
                 <Link 
                   to='/login' 
@@ -132,7 +137,7 @@ const Navbar = ({ isAuthenticated = false, user = {}, onLogout = () => {} }) => 
             ) : (
               <li>
                 <button 
-                  onClick={onLogout} 
+                  // onClick={onLogout} 
                   className='text-error hover:bg-error hover:text-white transition-colors duration-200'
                 >
                   Logout

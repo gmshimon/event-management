@@ -1,7 +1,9 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 
-const CallToActionStrip = ({ isAuthenticated = true }) => {
+const CallToActionStrip = () => {
+    const { user } = useSelector((state) => state.user);
   return (
     <section className="py-16 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 relative overflow-hidden">
       {/* Background Animation */}
@@ -66,7 +68,7 @@ const CallToActionStrip = ({ isAuthenticated = true }) => {
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
-            {isAuthenticated ? (
+            {user?.email ? (
               <>
                 <Link 
                   to="/add-event" 

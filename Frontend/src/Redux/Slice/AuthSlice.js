@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from '../../Utils/axios.js'
+import axiosSecure from '../../Utils/axiosSecure.js'
 
 const initialState = {
   user: null,
@@ -36,14 +37,14 @@ export const loginUser = createAsyncThunk(
     try {
       const res = await axios.post('/user/login', { email, pass })
       if (res.data.data) {
-        const tokenExpiration = new Date().getTime() + 5 * 60 * 60 * 1000;
+        const tokenExpiration = new Date().getTime() + 5 * 60 * 60 * 1000
         localStorage.setItem(
           'userToken',
           JSON.stringify({
             accessToken: res.data.accessToken,
-            tokenExpiration: tokenExpiration,
+            tokenExpiration: tokenExpiration
           })
-        ); 
+        )
       }
       return res.data.data
     } catch (err) {
@@ -58,11 +59,7 @@ export const fetchUser = createAsyncThunk(
   'user/fetchUser',
   async (_, { rejectWithValue }) => {
     try {
-      // Use token from localStorage if needed
-      const token = localStorage.getItem('userToken')
-      const res = await axios.get('/user', {
-        headers: { Authorization: `Bearer ${token}` }
-      })
+      const res = await axiosSecure.get('/user/fetch-user')
       return res.data.data
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || err.message)
@@ -113,7 +110,7 @@ const userSlice = createSlice({
         state.isCreateUserError = false
         state.error = null
       })
-      .addCase(registerUser.fulfilled, (state) => {
+      .addCase(registerUser.fulfilled, state => {
         state.isCreateUserLoading = false
         state.isCreateUserSuccess = true
         state.isCreateUserError = false
@@ -161,11 +158,11 @@ const userSlice = createSlice({
         state.isGetUserDataError = false
         state.error = null
       })
-      .addCase(fetchUser.rejected, (state, action) => {
+      .addCase(fetchUser.rejected, (state) => {
         state.isGetUserDataLoading = false
         state.isGetUserDataSuccess = false
         state.isGetUserDataError = true
-        state.error = action.payload
+        localStorage.removeItem('userToken')
       })
 
       // Logout

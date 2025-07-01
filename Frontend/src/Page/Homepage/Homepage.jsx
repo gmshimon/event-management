@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import  { useEffect } from "react";
 import HeroBanner from "../../Component/HeroBanner/HeroBanner";
 import UpcomingEvents from "../../Component/UpcomingEvents/UpcomingEvents";
 import HowItWorks from "../../Component/HowItWorks/HowItWorks";
